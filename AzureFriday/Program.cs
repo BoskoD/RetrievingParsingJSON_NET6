@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 
@@ -11,6 +12,8 @@ HttpClient client = new();
 client.BaseAddress = new Uri("https://docs.microsoft.com");
 int pageNum = 0;
 int pageSize = 30;
+
+List<string> essentials = new();
 
 //var totalCount = (int?)jsonObject["totalCount"].AsValue(); //349 episodes
 
@@ -39,8 +42,20 @@ foreach (var item in episodeEntryIds)
     string episodes = await client.GetStringAsync(string.Format(episodeUrl, item));
     var episodeMetadataObject = JsonNode.Parse(episodes);
     var videos = JsonSerializer.Deserialize<AzuerEpisodeMedia>(episodeMetadataObject);
-    Console.WriteLine($"Title: {videos.title}\nVideo: {videos.publicVideo["mediumQualityVideoUrl"]}");
-    Console.WriteLine();
+    var essentialMetadataInfo = $"{ videos.title}|{ videos.publicVideo["mediumQualityVideoUrl"]}";
+    essentials.Add(essentialMetadataInfo);
+    Console.WriteLine($"Title: {videos.title}\n Video: {videos.publicVideo["mediumQualityVideoUrl"]}");
+}
+
+
+// Set a variable to the Documents path.
+string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+// Write the string array to a new file named "WriteLines.txt".
+using (StreamWriter outputFile = new(Path.Combine(docPath, "AzureResources.txt")))
+{
+    foreach (string line in essentials)
+        outputFile.WriteLine($"{line}\n");
 }
 
 
