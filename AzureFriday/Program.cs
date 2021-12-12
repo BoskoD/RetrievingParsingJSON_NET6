@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -51,7 +51,7 @@ foreach (var item in episodeEntryIds)
 // Set a variable to the Documents path.
 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-// Write the string array to a new file named "WriteLines.txt".
+// Write the string array to a new file named "AzureResources.txt".
 using (StreamWriter outputFile = new(Path.Combine(docPath, "AzureResources.txt")))
 {
     foreach (string line in essentials)
@@ -71,6 +71,3 @@ public record AzureFridayShow
     public string description { get; init; }
     public string entryId { get; init; }
 }
-
-
-
