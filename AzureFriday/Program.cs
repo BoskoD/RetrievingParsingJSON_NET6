@@ -1,22 +1,22 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 
-/// <summary>
-/// Main url for the episodes
-/// </summary>
-var mainUrl = "/api/hierarchy/shows/azure-friday/episodes?page={0}&pageSize=30&orderBy=uploaddate%20desc";
+var mainUrl = "/api/hierarchy/shows/azure-friday/episodes?page={0}&pageSize=30&orderBy=uploaddate%20desc"; // mainUrl used to pull data
+var episodeUrl = "/api/video/public/v1/entries/{0}"; // episode metadata endpoint
 List<string> episodeEntryIds = new(); // store episode ids
+List<string> essentials = new(); // store episode metadata
+
 HttpClient client = new();
 client.BaseAddress = new Uri("https://docs.microsoft.com");
 int pageNum = 0;
 int pageSize = 30;
-
-List<string> essentials = new();
-
 //var totalCount = (int?)jsonObject["totalCount"].AsValue(); //349 episodes
 
+/// <summary>
+/// Retrieve and parse episode ids and populate 
+/// <see cref="episodeEntryIds"/>
+/// </summary>
 for (int i = 0; i < pageSize; i++)
 {
     string jsonString = await client.GetStringAsync(String.Format(mainUrl, pageNum));
@@ -31,12 +31,10 @@ for (int i = 0; i < pageSize; i++)
     pageNum++;
 }
 
-
 /// <summary>
-/// Episode metadata
+/// Get episode ids and pull episode metadata to populate episode video list 
+/// <see cref="essentials"/>
 /// </summary>
-var episodeUrl = "/api/video/public/v1/entries/{0}";
-
 foreach (var item in episodeEntryIds)
 {
     string episodes = await client.GetStringAsync(string.Format(episodeUrl, item));
@@ -47,7 +45,6 @@ foreach (var item in episodeEntryIds)
     Console.WriteLine($"Title: {videos.title}\n Video: {videos.publicVideo["mediumQualityVideoUrl"]}");
 }
 
-
 // Set a variable to the Documents path.
 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
@@ -57,7 +54,6 @@ using (StreamWriter outputFile = new(Path.Combine(docPath, "AzureResources.txt")
     foreach (string line in essentials)
         outputFile.WriteLine($"{line}\n");
 }
-
 
 public record AzuerEpisodeMedia 
 {
