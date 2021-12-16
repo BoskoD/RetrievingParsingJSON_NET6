@@ -1,3 +1,5 @@
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -45,6 +47,27 @@ foreach (var item in episodeEntryIds)
     Console.WriteLine($"Title: {videos.title}\n Video: {videos.publicVideo["mediumQualityVideoUrl"]}");
 }
 
+
+var ytService = new YouTubeService(new BaseClientService.Initializer()
+{
+    ApiKey = "api key"
+});
+
+var baseAddress = "https://www.youtube.com";
+var request = ytService.Search.List("snippet");
+request.Q = "C# Advanced|Microservices .NET|Cloud Design Patterns|Advanced DevOps";
+request.RegionCode = "us"; //https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+request.MaxResults = 100;
+
+
+var result = await request.ExecuteAsync();
+foreach (var videos in result.Items)
+{
+    Console.WriteLine($"Title: {videos.Snippet.Title}\nVideo: {baseAddress}/watch?v={videos.Id.VideoId}");
+    Console.WriteLine();
+}
+
+
 // Set a variable to the Documents path.
 string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
@@ -55,7 +78,7 @@ using (StreamWriter outputFile = new(Path.Combine(docPath, "AzureResources.txt")
         outputFile.WriteLine($"{line}\n");
 }
 
-public record AzuerEpisodeMedia 
+public record AzuerEpisodeMedia
 {
     public string title { get; set; }
     public JsonObject publicVideo { get; set; }
@@ -67,3 +90,5 @@ public record AzureFridayShow
     public string description { get; init; }
     public string entryId { get; init; }
 }
+
+
