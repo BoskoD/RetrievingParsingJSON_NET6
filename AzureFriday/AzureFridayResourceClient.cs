@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 
+
 namespace AzureFriday
 {
     public class AzureFridayResourceClient
@@ -37,12 +38,9 @@ namespace AzureFriday
             {
                 string jsonString = await Client.GetStringAsync(String.Format(MainUrl, pageNum));
                 var jsonObject = JsonNode.Parse(jsonString);
-
-                foreach (JsonObject item in jsonObject["episodes"].AsArray())
-                {
-                    var show = JsonSerializer.Deserialize<AzureFridayShow>(item);
-                    EpisodeEntryIds.Add(show.entryId);
-                }
+                EpisodeEntryIds.AddRange(from JsonObject? item in jsonObject["episodes"].AsArray()
+                                         let show = JsonSerializer.Deserialize<AzureFridayShow>(item)
+                                         select show.entryId);
                 i++;
                 pageNum++;
             }
@@ -68,10 +66,16 @@ namespace AzureFriday
         private static void ExportToExcel(List<string> essentials)
         {
             // Set a variable to the Documents path.
-            string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string docFullPath = Path.Combine(Environment.GetFolderPath
+                (Environment.SpecialFolder.MyDocuments), "AzureResources.txt");
 
+            if (!File.Exists(docFullPath))
+            {
+                using StreamWriter sw = File.CreateText(docFullPath);
+            }
+                
             // Write the string array to a new file named "AzureResources.txt".
-            using StreamWriter outputFile = new(Path.Combine(docPath, "AzureResources.txt"));
+            using StreamWriter outputFile = new(docFullPath);
             foreach (string line in essentials)
                 outputFile.WriteLine($"{line}\n");
         }
@@ -95,6 +99,7 @@ namespace AzureFriday
         public string title { get; set; }
         public JsonObject publicVideo { get; set; }
     }
+
     public record AzureFridayShow
     {
         public string title { get; init; }

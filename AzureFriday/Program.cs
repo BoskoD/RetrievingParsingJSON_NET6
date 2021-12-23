@@ -15,6 +15,10 @@ Settings settings = config.GetRequiredSection("Settings").Get<Settings>();
 AzureFridayResourceClient azureFridayEpisodes = new();
 await azureFridayEpisodes.RunAsync();
 
-// You tube target resources
+// You tube target resources 
 YouTubeResourceClient youTubeClient = new(settings.ApiKey);
 await youTubeClient.RunAsync();
+
+//await Task.WhenAll(
+//    azureFridayEpisodes.RunAsync(), 
+//    youTubeClient.RunAsync());
